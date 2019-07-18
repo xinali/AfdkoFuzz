@@ -54,3 +54,6 @@ dmypy.json
 *.exe
 *.out
 *.app
+
+
+*.gdb_history*

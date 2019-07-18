@@ -8,8 +8,16 @@
             "name": "debug afdko_fuzz",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/root/afdko_fuzz/",
-            "args": [],
+            // "program": "/root/AfdkoFuzz/CVE-2019-1117/tx_fuzz",
+            "program": "/usr/local/bin/afl-fuzz",
+            "args": [
+                "-i",
+                "${workspaceFolder}/CVE-2019-1117/input_corps",
+                "-o",
+                "output",
+                "--",
+                "${workspaceFolder}/CVE-2019-1117/tx_fuzz"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
