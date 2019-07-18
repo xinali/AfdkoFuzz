@@ -5,19 +5,38 @@
 ## CVE-2019-1117
 
 
-`tx_fuzz.c`
+具体参见目录`CVE-2019-1117`
 
 
+## CVE-2019-1118
 
-## 正常fuzz构建
+
+`testing`
 
 
-```
-1. build.sh
-2. target.patch || target.cc
-3. input_corpus/output_corpus
-```
+## Continuous fuzzing
+
+
+One-off fuzzing might find you some bugs,
+but unless you make the fuzzing process **continuous**
+it will be a wasted effort.
+
+A simple continuous fuzzing system could be written in < 100 lines of bash code.
+In an infinite loop do the following:
+
+* Pull the current revision of your code.
+* Build the fuzz target
+* Copy the current corpus from cloud to local disk
+* Fuzz for some time.
+  * With libFuzzer, use the flag `-max_total_time=N` to set the time in seconds).
+* Synchronize the updated corpus back to the cloud
+* Provide the logs, coverage information, crash reports, and crash reproducers
+  via e-mail, web interface, or cloud storage.
 
 
 ## 参考
+
+
 [PJ0](https://bugs.chromium.org/p/project-zero/issues/list?can=1&q=finder%3Amjurczyk+reported%3A2019-apr-26)
+
+[最后引用来源](https://github.com/google/fuzzer-test-suite/edit/master/tutorial/libFuzzerTutorial.md)
