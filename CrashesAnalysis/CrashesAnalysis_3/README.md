@@ -2,12 +2,11 @@
 
 这个直接使用我提交的`issue`
 
-
-# heap-based out-of-bounds read when parsing undefined FontName with svg font file
+# heap-based out-of-bounds read when parsing otf file with undefined FontName in svg option
 
 Please excuse my poor English. I'm not a native speaker. I will do my best to describe this bug.
 
-First I found this error with `honggfuzz`.
+I found this bug with `google/honggfuzz`.
 
 In lates commit `2e8fc3d6b218cb79a0b159ba663a2ad7622fb73c` 
 
@@ -19,17 +18,17 @@ compile `tx` in `c/tx/build/linux/gcc/debug/`
 make clean && CC=clang make
 ```
 
-then use `tx `to parse a specific svg font file
+then use `tx` to parse a specific otf file
 
 ```
-tx -svg poc.svg
+tx -svg poc.otf
 ```
 
-then `tx` segment fault
+ `tx` segment fault
 
 ```
-./tx -svg poc.svg 
-./tx[1]    28077 segmentation fault (core dumped)  ./tx -svg poc.svg
+./tx -svg poc.otf
+./tx[1]    28077 segmentation fault (core dumped)  ./tx -svg poc.otf
 ```
 
 I use `pwndbg` to debug
@@ -75,15 +74,15 @@ pwndbg> bt
 #2  0x0000000000441428 in svwEndFont (h=0x6f37f0, top=0x6f8e00) at ../../../../../source/svgwrite/svgwrite.c:450
 #3  0x0000000000478914 in svg_EndFont ()
 #4  0x000000000046ec3b in svrReadFont ()
-#5  0x00000000004058fb in doFile (h=0x6ec010, srcname=0x7fffffffe67f "poc.svg") at ../../../../source/tx.c:435
-#6  0x0000000000404f3e in doSingleFileSet (h=0x6ec010, srcname=0x7fffffffe67f "poc.svg") at ../../../../source/tx.c:488
+#5  0x00000000004058fb in doFile (h=0x6ec010, srcname=0x7fffffffe67f "poc.otf") at ../../../../source/tx.c:435
+#6  0x0000000000404f3e in doSingleFileSet (h=0x6ec010, srcname=0x7fffffffe67f "poc.otf") at ../../../../source/tx.c:488
 #7  0x0000000000402d89 in parseArgs (h=0x6ec010, argc=2, argv=0x7fffffffe3b0) at ../../../../source/tx.c:558
 #8  0x0000000000401c27 in main (argc=2, argv=0x7fffffffe3b0) at ../../../../source/tx.c:1587
 #9  0x00007ffff7724830 in __libc_start_main (main=0x401a60 <main>, argc=3, argv=0x7fffffffe3a8, init=<optimized out>, fini=<optimized out>, rtld_fini=<optimized out>, stack_end=0x7fffffffe398) at ../csu/libc-start.c:291
 #10 0x0000000000401989 in _start ()
 ```
 
-then I do some analysis, I found when `tx` parse the specific svg font file with no `FontName`, `tx` will occur segment fault.
+then I do some analysis, I found when `tx` parse the specific `otf` file with no `FontName`, `tx` will occur segment fault.
 
 To show the bug details, set breakpoint at `svgwrite.c:383` in function `svwEndFont`
 
@@ -206,7 +205,7 @@ $2 = {
 }
 ```
 
-you can see, svg file has no `FontName`
+you can see, otf file has no `FontName`
 
 ```
 BaseFontName = {
@@ -257,6 +256,6 @@ it visit `s`, then segment fault.
 
 The bug exsits, because `tx` doesn't check `FontName` pointer.
 
-All data is in heap. If someone use a specific svg font file,  it may cause some security issues with `OOB`
+All data is in heap. If someone use a specific `otf` file,  it may cause some security issues with `OOB`
 
 If necessary, I can send you a proof of concept for this bug.
